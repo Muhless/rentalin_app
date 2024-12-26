@@ -1,0 +1,2 @@
+C:/Users/nurya/OneDrive/Documents/kuli/SEMESTER 7/2. Pemrograman Android/Android/rentalin_app/android/app/.cxx/Debug/h1f701h3/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/nurya/OneDrive/Documents/kuli/SEMESTER 7/2. Pemrograman Android/Android/rentalin_app/android/app/.cxx/Debug/h1f701h3/x86_64/CMakeFiles/rebuild_cache.dir
