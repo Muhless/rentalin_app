@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:rentalin_app/screen/auth/login.dart';
-import 'package:rentalin_app/screen/auth/register.dart';
 import 'package:rentalin_app/screen/mobil/kriteria.dart';
+import 'package:rentalin_app/screen/services/api.dart';
 import 'package:rentalin_app/screen/widgets/statusbar.dart';
 import 'package:rentalin_app/screen/widgets/warna.dart';
 
@@ -287,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Register(),
+                                  builder: (context) => CarListScreen(),
                                 ),
                               );
                               break;

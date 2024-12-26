@@ -1,288 +1,95 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:rentalin_app/screen/mobil/family/detail.dart';
-import 'package:rentalin_app/screen/widgets/warna.dart';
+import 'package:http/http.dart' as http;
 
-class ListFamily extends StatefulWidget {
-  const ListFamily({super.key});
-
+class ListFamilyCars extends StatefulWidget {
   @override
-  State<ListFamily> createState() => _MobilKeluargaState();
+  _ListFamilyCarsState createState() => _ListFamilyCarsState();
 }
 
-class _MobilKeluargaState extends State<ListFamily> {
-  final FocusNode _focusNode = FocusNode();
-  final TextEditingController _controller = TextEditingController();
-  Color _textColor = Colors.white;
-
-  void _search(String query) {
-    print("Mencari: $query");
-  }
+class _ListFamilyCarsState extends State<ListFamilyCars> {
+  List<dynamic> cars = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-
-    _focusNode.addListener(() {
-      setState(() {
-        _textColor = _focusNode.hasFocus ? Colors.black : Colors.white;
-      });
-    });
+    fetchCars();
   }
 
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    _controller.dispose();
-    super.dispose();
+  Future<void> fetchCars() async {
+    final url = Uri.parse('http://10.0.2.2:8000/api/cars/family');
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          cars = data;
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load cars');
+      }
+    } catch (e) {
+      print(e);
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        backgroundColor: Warna.sixthColor,
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(30),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 30, bottom: 20),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Icon(
-                          Icons.arrow_back,
-                          size: 30,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color:
-                              _focusNode.hasFocus
-                                  ? Warna.fifthColor
-                                  : Colors.transparent,
-                          border: Border.all(
-                            color:
-                                _focusNode.hasFocus
-                                    ? Colors.white
-                                    : Colors.grey,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                        child: TextField(
-                          focusNode: _focusNode,
-                          controller: _controller,
-                          style: TextStyle(color: _textColor),
-                          onChanged: (value) {
-                            print('Teks pencarian: $value');
+    return Scaffold(
+      appBar: AppBar(title: Text('Family Cars')),
+      body:
+          isLoading
+              ? Center(child: CircularProgressIndicator())
+              : cars.isEmpty
+              ? Center(child: Text('No cars found.'))
+              : Container(
+                margin: EdgeInsets.all(30),
+                child: ListView.builder(
+                  itemCount: cars.length,
+                  itemBuilder: (context, index) {
+                    final car = cars[index];
+                    return Card(
+                      margin: EdgeInsets.all(8.0),
+                      child: ListTile(
+                        leading: Image.network(
+                          car['icon_path'] ?? '',
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(Icons.directions_car);
                           },
-                          decoration: InputDecoration(
-                            hintText: 'Cari mobil',
-                            hintStyle: TextStyle(color: Colors.grey),
-                            suffixIcon: IconButton(
-                              icon: Icon(Icons.search, color: Colors.white),
-                              onPressed: () {
-                                _search(_controller.text);
-                              },
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 15,
-                            ),
-                          ),
+                        ),
+                        title: Text('${car['brand']} ${car['model']}'),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Seat: ${car['kapasitas']}'),
+                            Text('Transmisi: ${car['transmisi']}'),
+                            Text('Harga: Rp ${car['harga']} / hari'),
+                          ],
+                        ),
+                        trailing: Image.asset(
+                          car['image_path'] ?? '',
+                          width: 100,
+                          height: 60,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(Icons.image);
+                          },
                         ),
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailFamily(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.85,
-                        height: 190,
-                        decoration: BoxDecoration(
-                          color: Color(0xffEEEEEE),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        margin: EdgeInsets.only(left: 5),
-                                        child: Image.asset(
-                                          'assets/icons/toyota.png',
-                                          height: 50,
-                                          width: 100,
-                                        ),
-                                      ),
-                                      SizedBox(height: 8),
-                                      Text(
-                                        'Toyota',
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w300,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Avanza',
-                                        style: TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: Image.asset(
-                                        'assets/family/brio.png',
-                                        height: 130,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                ),
-                                child: Container(
-                                  // margin: EdgeInsets.only(top: 5),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 5,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          color: Colors.white,
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.airline_seat_recline_extra,
-                                              size: 13,
-                                            ),
-                                            SizedBox(width: 3),
-                                            Text(
-                                              '4 Kursi',
-                                              style: TextStyle(fontSize: 13),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 5,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          color: Colors.white,
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.grid_goldenratio,
-                                              size: 13,
-                                            ),
-                                            SizedBox(width: 3),
-                                            Text(
-                                              'Manual',
-                                              style: TextStyle(fontSize: 13),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(width: 3),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 13,
-                                          vertical: 5,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Color.fromARGB(255, 0, 0, 0),
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'Rp150.000/hari',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+              ),
     );
-    // batas list
-    //
   }
 }
