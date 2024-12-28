@@ -19,12 +19,9 @@ class _DetailFamilyCars extends State<DetailFamilyCars> {
     return Scaffold(
       backgroundColor: Warna.fifthColor,
       appBar: AppBar(
-        title: Text(
-          'Detail Mobil',
-          style: TextStyle(color: Warna.secondaryColor),
-        ),
+        title: Text('Detail Mobil', style: TextStyle(color: Warna.thirdColor)),
         backgroundColor: Warna.fifthColor,
-        foregroundColor: Warna.secondaryColor,
+        foregroundColor: Warna.thirdColor,
       ),
       body: Column(
         children: [
@@ -48,7 +45,7 @@ class _DetailFamilyCars extends State<DetailFamilyCars> {
           Expanded(
             flex: 1,
             child: Container(
-              color: Warna.secondaryColor,
+              color: Warna.thirdColor,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -172,7 +169,7 @@ class _DetailFamilyCars extends State<DetailFamilyCars> {
                             width: 130,
                             margin: EdgeInsets.only(right: 15),
                             decoration: BoxDecoration(
-                              color: Warna.thirdColor,
+                              color: Warna.primaryColor,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Column(

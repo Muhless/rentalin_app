@@ -1,9 +1,8 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
-import 'package:rentalin_app/screen/mobil/commercial/list.dart';
+import 'package:rentalin_app/screen/home.dart';
 import 'package:rentalin_app/screen/mobil/family/list.dart';
-import 'package:rentalin_app/screen/mobil/luxury/list.dart';
 import 'package:rentalin_app/screen/widgets/warna.dart';
 
 class KriteriaMobil extends StatelessWidget {
@@ -82,9 +81,7 @@ class KriteriaMobil extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => ListCommercialCars(),
-                    ),
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
                   );
                 },
                 child: Stack(

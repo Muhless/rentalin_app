@@ -133,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 30,
                               width: 200,
                               decoration: BoxDecoration(
-                                color: Warna.secondaryColor,
+                                color: Warna.thirdColor,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Row(
