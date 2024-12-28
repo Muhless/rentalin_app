@@ -10,6 +10,7 @@ import 'package:rentalin_app/screen/widgets/warna.dart';
 class Login extends StatefulWidget {
   const Login({super.key});
   @override
+  // ignore: library_private_types_in_public_api
   _LoginState createState() => _LoginState();
 }
 
@@ -24,7 +25,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Warna.fourthColor,
+        color: Warna.thirdColor,
         padding: EdgeInsets.symmetric(horizontal: 30),
         child: Column(
           children: [

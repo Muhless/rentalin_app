@@ -68,25 +68,35 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 35),
             Column(
               children: [
-                Container(
-                  // margin: EdgeInsets.only(left: 20, right: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: List.generate(1, (index) {
-                      String judulSpesifikasi;
-                      String tagline;
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: List.generate(1, (index) {
+                    String judulSpesifikasi;
+                    String tagline;
 
-                      switch (index) {
-                        case 0:
-                          judulSpesifikasi = 'Pilihan Terbaik ';
-                          tagline = 'untuk Setiap Perjalanan';
-                          break;
+                    switch (index) {
+                      case 0:
+                        judulSpesifikasi = 'Pilihan Terbaik ';
+                        tagline = 'untuk Setiap Perjalanan';
+                        break;
 
-                        default:
-                          judulSpesifikasi = 'Kapasitas';
-                          tagline = 'cihuy';
-                      }
-                      return Container(
+                      default:
+                        judulSpesifikasi = 'Kapasitas';
+                        tagline = 'cihuy';
+                    }
+                    return GestureDetector(
+                      onTap: () {
+                        switch (index) {
+                          case 0:
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => KriteriaMobil(),
+                              ),
+                            );
+                        }
+                      },
+                      child: Container(
                         height: 200,
                         width: 320,
                         decoration: BoxDecoration(
@@ -100,67 +110,50 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(top: 40),
-                                  child: Text(
-                                    judulSpesifikasi,
-                                    style: TextStyle(
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold,
-                                      color: Warna.primaryColor,
-                                    ),
-                                  ),
+                            Container(
+                              margin: EdgeInsets.only(top: 40),
+                              child: Text(
+                                judulSpesifikasi,
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                  color: Warna.primaryColor,
                                 ),
-                                Text(
-                                  tagline,
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    color: Warna.primaryColor,
-                                  ),
-                                ),
-                              ],
+                              ),
+                            ),
+                            Text(
+                              tagline,
+                              style: TextStyle(
+                                fontSize: 17,
+                                color: Warna.primaryColor,
+                              ),
                             ),
                             Container(
                               margin: EdgeInsets.only(bottom: 20, top: 10),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => (KriteriaMobil()),
+                              height: 30,
+                              width: 200,
+                              decoration: BoxDecoration(
+                                color: Warna.secondaryColor,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Rental Sekarang",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
                                     ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  fixedSize: Size(200, 30),
-                                  backgroundColor: Warna.fourthColor,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "Rental Sekarang",
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      );
-                    }),
-                  ),
+                      ),
+                    );
+                  }),
                 ),
                 Container(
                   margin: EdgeInsets.only(left: 20, right: 20, top: 40),
@@ -219,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 130,
                           width: 130,
                           decoration: BoxDecoration(
-                            color: Warna.fourthColor,
+                            color: Warna.thirdColor,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Column(
@@ -299,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 130,
                           width: 130,
                           decoration: BoxDecoration(
-                            color: Warna.fourthColor,
+                            color: Warna.thirdColor,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Column(

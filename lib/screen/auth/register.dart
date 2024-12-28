@@ -50,7 +50,7 @@ class _RegisterState extends State<Register> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Container(
-          color: Warna.fourthColor,
+          color: Warna.thirdColor,
           padding: EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             children: [

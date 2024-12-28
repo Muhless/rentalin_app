@@ -3,5 +3,5 @@ flutter_native_splash:
   ios: false
   web: false
 
-  color: "#ffffff"
+  color: "#293B51"
   image: assets/kabedon.jpg

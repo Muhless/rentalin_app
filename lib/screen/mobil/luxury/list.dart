@@ -43,7 +43,7 @@ class _MobilKeluargaState extends State<ListLuxury> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: Warna.sixthColor,
+        backgroundColor: Warna.secondaryColor,
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(30),

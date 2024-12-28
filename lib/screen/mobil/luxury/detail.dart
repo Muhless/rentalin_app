@@ -43,7 +43,7 @@ class _DetailLuxury extends State<DetailLuxury> {
                       child: Icon(
                         Icons.arrow_back,
                         size: 30,
-                        color: Warna.sixthColor,
+                        color: Warna.secondaryColor,
                       ),
                     ),
                   ),
@@ -62,7 +62,7 @@ class _DetailLuxury extends State<DetailLuxury> {
             Expanded(
               flex: 1,
               child: Container(
-                color: Warna.sixthColor,
+                color: Warna.secondaryColor,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -86,7 +86,7 @@ class _DetailLuxury extends State<DetailLuxury> {
                           child: Text(
                             'Rp150.000',
                             style: TextStyle(
-                              color: Warna.thirdColor,
+                              color: Warna.primaryColor,
                               fontSize: 20,
                             ),
                           ),
@@ -153,7 +153,7 @@ class _DetailLuxury extends State<DetailLuxury> {
                               width: 130,
                               margin: EdgeInsets.only(right: 15),
                               decoration: BoxDecoration(
-                                color: Warna.fourthColor,
+                                color: Warna.thirdColor,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Column(
@@ -185,31 +185,6 @@ class _DetailLuxury extends State<DetailLuxury> {
                     ),
                     SizedBox(height: 10),
                     Spacer(),
-                    Container(
-                      color: Warna.primaryColor,
-                      margin: EdgeInsets.only(bottom: 30, left: 30, right: 30),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => (PembayaranScreen()),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          fixedSize: Size(400, 50),
-                          backgroundColor: Colors.blue,
-                        ),
-                        child: Text(
-                          "Rental Sekarang",
-                          style: TextStyle(fontSize: 20, color: Colors.white),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
