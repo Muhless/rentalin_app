@@ -1,6 +1,10 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:rentalin_app/screen/widgets/warna.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PembayaranScreen extends StatefulWidget {
   final Map<String, dynamic> car;
@@ -16,7 +20,79 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
   DateTime? selectedEndDate;
   bool isDriverSelected = false;
   String? selectedPaymentMethod;
-  int biayaSewa = 0; // Biaya sewa
+  int biayaSewa = 0;
+  String username = '';
+  bool _isLoading = false;
+
+  Future<void> _sendDataToApi(BuildContext context) async {
+    if (selectedStartDate == null ||
+        selectedEndDate == null ||
+        selectedPaymentMethod == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Harap lengkapi semua data sebelum konfirmasi pembayaran.',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    final Map<String, dynamic> requestData = {
+      'users': username,
+      'cars': widget.car['brand'],
+      'rent_date': selectedStartDate?.toIso8601String(),
+      'return_date': selectedEndDate?.toIso8601String(),
+      'rent_duration': getDurasiSewa(),
+      'payment': selectedPaymentMethod,
+      'total': int.tryParse(
+        getTotal().replaceAll('Rp.', '').replaceAll(',', ''),
+      ),
+      'status': 'Pending',
+    };
+    final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+        GlobalKey<ScaffoldMessengerState>();
+
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2:8000/api/transactions'),
+
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode(requestData),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print('Data berhasil dikirim: ${response.body}');
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Text('Data berhasil dikirim'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      print('Gagal mengirim data: ${response.statusCode} - ${response.body}');
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Text('Gagal mengirim data'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> saveUserData(String username) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('username', username);
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username') ?? 'Unknown';
+    });
+  }
 
   int durasiRental() {
     if (selectedStartDate == null || selectedEndDate == null) {
@@ -32,18 +108,20 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
     return 0;
   }
 
-  void calculateBiayaSewa(int hargaSewaPerHari) {
-    biayaSewa = hargaSewaPerHari * getDurasiSewa();
+  void getBiayaSewa() {
+    widget.car['price'] * getDurasiSewa();
   }
 
-  int get getBiayaDriver {
+  int getBiayaDriver() {
     return isDriverSelected ? 100000 * getDurasiSewa() : 0;
   }
 
-  int getTotal() {
-    int hargaSewa = widget.car['price'];
-    int biayaDriver = getBiayaDriver; // Menggunakan fungsi getBiayaDriver
-    return hargaSewa + biayaDriver;
+  String getTotal() {
+    int driver = getBiayaDriver();
+    int duration = getDurasiSewa();
+    int totalCarPrice = widget.car['price'] * duration;
+    int total = totalCarPrice + driver;
+    return 'Rp.${total.toString()}';
   }
 
   Future<void> _selectDate(
@@ -91,6 +169,12 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Warna.primaryColor,
@@ -112,7 +196,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                     actions: [
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          Navigator.pop(context);
                         },
                         child: Text('Tidak'),
                       ),
@@ -140,15 +224,6 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Perentalan',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 20),
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
@@ -297,8 +372,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                                     String value,
                                   ) {
                                     return DropdownMenuItem<String>(
-                                      child: Text(value),
                                       value: value,
+                                      child: Text(value),
                                     );
                                   }).toList(),
                             ),
@@ -337,8 +412,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _buildDetailColumn([
-                            {'label': 'Customer', 'value': 'Budiono Siregar'},
-                            {'label': 'No Telepon', 'value': '088'},
+                            {'label': 'Customer', 'value': username},
                             {
                               'label': 'Mobil',
                               'value':
@@ -371,10 +445,6 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                             {
                               'label': 'Durasi Sewa',
                               'value': '${durasiRental()} Hari',
-                            },
-                            {
-                              'label': 'Metode Pembayaran',
-                              'value': selectedPaymentMethod ?? 'Belum dipilih',
                             },
                           ], alignRight: true),
                         ],
@@ -415,18 +485,25 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 for (var detail in [
-                                  {'label': 'Biaya Sewa', 'value': 'Rp'},
+                                  {
+                                    'label': 'Biaya Sewa',
+                                    'value':
+                                        'Rp.${widget.car['price'] * getDurasiSewa()}',
+                                  },
 
                                   {
                                     'label': 'Biaya Driver',
                                     'value':
                                         isDriverSelected
                                             ? 'Rp.${100000 * getDurasiSewa()}'
-                                            : '0',
+                                            : 'Rp.0',
                                   },
+                                  {'label': 'Total', 'value': getTotal()},
                                   {
-                                    'label': 'Total',
-                                    'value': 'Rp.${getTotal()}',
+                                    'label': 'Metode Pembayaran',
+                                    'value':
+                                        selectedPaymentMethod ??
+                                        'Belum dipilih',
                                   },
                                 ])
                                   Padding(
@@ -467,23 +544,32 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
               ),
               SizedBox(height: 30),
               Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    (context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    'Konfirmasi Pembayaran',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                ),
+                child:
+                    _isLoading
+                        ? CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.deepPurple,
+                          ),
+                          strokeWidth: 4.0,
+                        )
+                        : ElevatedButton(
+                          onPressed: () => _sendDataToApi(context),
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.blue,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 30,
+                              vertical: 15,
+                            ),
+                            textStyle: TextStyle(fontSize: 18),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Text('Konfirmasi Pembayaran'),
+                        ),
               ),
+              SizedBox(height: 20),
             ],
           ),
         ),

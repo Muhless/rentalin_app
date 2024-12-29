@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:rentalin_app/screen/pembayaran.dart';
 import 'package:rentalin_app/screen/widgets/warna.dart';
 
-class DetailFamilyCars extends StatefulWidget {
+class DetailCarScreen extends StatefulWidget {
   final Map<String, dynamic> car;
 
-  const DetailFamilyCars(this.car, {super.key});
+  const DetailCarScreen(this.car, {super.key});
 
   @override
-  State<DetailFamilyCars> createState() => _DetailFamilyCars();
+  State<DetailCarScreen> createState() => _DetailFamilyCars();
 }
 
-class _DetailFamilyCars extends State<DetailFamilyCars> {
+class _DetailFamilyCars extends State<DetailCarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,7 +76,6 @@ class _DetailFamilyCars extends State<DetailFamilyCars> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Container(

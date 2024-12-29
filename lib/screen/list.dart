@@ -2,15 +2,18 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:rentalin_app/screen/mobil/family/detail.dart';
+import 'package:rentalin_app/screen/detail.dart';
 import 'package:rentalin_app/screen/widgets/warna.dart';
 
-class ListFamilyCars extends StatefulWidget {
+class ListCarScreen extends StatefulWidget {
+  const ListCarScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ListFamilyCarsState createState() => _ListFamilyCarsState();
 }
 
-class _ListFamilyCarsState extends State<ListFamilyCars> {
+class _ListFamilyCarsState extends State<ListCarScreen> {
   List<dynamic> cars = [];
   bool isLoading = true;
 
@@ -21,20 +24,24 @@ class _ListFamilyCarsState extends State<ListFamilyCars> {
   }
 
   Future<void> fetchCars() async {
-    final url = Uri.parse('http://10.0.2.2:8000/api/cars');
+    const String apiUrl = 'http://10.0.2.2:8000/api/cars';
     try {
-      final response = await http.get(url).timeout(const Duration(seconds: 30));
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Connection': 'Keep-Alive',
+          'Content-Type': 'application/json',
+        },
+      );
       if (response.statusCode == 200) {
         setState(() {
           cars = json.decode(response.body);
           isLoading = false;
         });
-        print("Cars fetched: ${cars}");
       } else {
         throw Exception('Failed to load cars');
       }
     } catch (e) {
-      print(e);
       setState(() {
         isLoading = false;
       });
@@ -46,7 +53,7 @@ class _ListFamilyCarsState extends State<ListFamilyCars> {
     return Scaffold(
       backgroundColor: Warna.primaryColor,
       appBar: AppBar(
-        title: Text('Mobil Keluarga', style: TextStyle(color: Colors.white)),
+        title: Text('List Mobil', style: TextStyle(color: Colors.white)),
         backgroundColor: Warna.primaryColor,
         foregroundColor: Colors.white,
       ),
@@ -70,7 +77,7 @@ class _ListFamilyCarsState extends State<ListFamilyCars> {
                             context,
                             MaterialPageRoute(
                               builder:
-                                  (context) => DetailFamilyCars(selectedCar),
+                                  (context) => DetailCarScreen(selectedCar),
                             ),
                           );
                         },

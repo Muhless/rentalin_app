@@ -2,10 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:rentalin_app/screen/auth/login.dart';
-import 'package:rentalin_app/screen/mobil/kriteria.dart';
-import 'package:rentalin_app/screen/services/api.dart';
+import 'package:rentalin_app/screen/help.dart';
+import 'package:rentalin_app/screen/list.dart';
+import 'package:rentalin_app/screen/profile.dart';
+import 'package:rentalin_app/screen/rental.dart';
 import 'package:rentalin_app/screen/widgets/statusbar.dart';
 import 'package:rentalin_app/screen/widgets/warna.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +18,33 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String username = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsername();
+  }
+
+
+  Future<void> _loadUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username') ?? 'Guest';
+    });
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    await prefs.remove('username');
+    Navigator.pushReplacement(
+      // ignore: use_build_context_synchronously
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemUIHelper.setTransparentStatusBar(iconBrightness: Brightness.light);
@@ -50,14 +80,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Budiono Siregar',
+                        username,
                         style: TextStyle(fontSize: 30, color: Colors.white),
                       ),
                       IconButton(
                         icon: Icon(Icons.logout, size: 20, color: Colors.white),
                         onPressed: () {
-                          // Proses logout
-                          // _logout(context);
+                          _logout(context);
                         },
                       ),
                     ],
@@ -91,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => KriteriaMobil(),
+                                builder: (context) => ListCarScreen(),
                               ),
                             );
                         }
@@ -192,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => KriteriaMobil(),
+                                  builder: (context) => RentalScreen(),
                                 ),
                               );
                               break;
@@ -200,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => KriteriaMobil(),
+                                  builder: (context) => ListCarScreen(),
                                 ),
                               );
                               break;
@@ -250,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             size: 40,
                             color: Colors.white,
                           );
-                          judulSpesifikasi = 'Riwayat';
+                          judulSpesifikasi = 'Profil';
                           break;
                         case 1:
                           iconSpesifikasi = Icon(
@@ -272,7 +301,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Login(),
+                                  builder: (context) => ProfileScreen()
                                 ),
                               );
                               break;
@@ -280,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => CarListScreen(),
+                                  builder: (context) => CustomerserviceScreen(),
                                 ),
                               );
                               break;

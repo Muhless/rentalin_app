@@ -1,25 +1,74 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:rentalin_app/screen/auth/button.dart';
+import 'package:http/http.dart' as http;
+import 'package:rentalin_app/screen/widgets/button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rentalin_app/screen/auth/register.dart';
-import 'package:rentalin_app/screen/home.dart';
 import 'package:rentalin_app/screen/widgets/warna.dart';
 
-class Login extends StatefulWidget {
-  const Login({super.key});
-  @override
-  // ignore: library_private_types_in_public_api
-  _LoginState createState() => _LoginState();
+Future<bool> login(String username, String password) async {
+  final String apiUrl = 'http://10.0.2.2:8000/api/login';
+
+  final response = await http.post(
+    Uri.parse(apiUrl),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'username': username, 'password': password}),
+  );
+
+  if (response.statusCode == 200) {
+    // ignore: unused_local_variable
+    final data = jsonDecode(response.body);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', username);
+    return true;
+  } else {
+    return false;
+  }
 }
 
-class _LoginState extends State<Login> {
-  bool _obscurePassword = true;
-  String _email = '';
-  String _password = '';
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+  @override
+  // ignore: library_private_types_in_public_api
+  _LoginScreenState createState() => _LoginScreenState();
+}
 
-  loginPressed() {}
+class _LoginScreenState extends State<LoginScreen> {
+  bool _obscurePassword = true;
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _handleLogin() async {
+    String username = _usernameController.text;
+    String password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Username dan password tidak boleh kosong'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    bool isLoggedIn = await login(username, password);
+
+    if (isLoggedIn) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Login Gagal, silahkan ulangi kembali'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +101,7 @@ class _LoginState extends State<Login> {
                       ),
                       SizedBox(height: 32),
                       TextFormField(
+                        controller: _usernameController,
                         decoration: InputDecoration(
                           labelText: 'Username',
                           labelStyle: TextStyle(color: Colors.white70),
@@ -63,12 +113,10 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                         style: TextStyle(color: Colors.white),
-                        onChanged: (value) {
-                          _email = value;
-                        },
                       ),
                       SizedBox(height: 16),
                       TextFormField(
+                        controller: _passwordController,
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
                           labelText: 'Password',
@@ -94,23 +142,13 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                         style: TextStyle(color: Colors.white),
-                        onChanged: (value) {
-                          _password = value;
-                        },
                       ),
                       SizedBox(height: 32),
                       SizedBox(
                         width: double.infinity,
                         child: ButtonSubmit(
                           btnText: 'Masuk',
-                          onBtnPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => HomeScreen(),
-                              ),
-                            );
-                          },
+                          onBtnPressed: _handleLogin,
                         ),
                       ),
                       Center(
@@ -124,11 +162,7 @@ class _LoginState extends State<Login> {
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 TextSpan(
-                                  text: 'Register',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                TextSpan(
-                                  text: ' disini',
+                                  text: 'Register disini',
                                   style: TextStyle(
                                     color: Colors.blue,
                                     decoration: TextDecoration.underline,
@@ -140,7 +174,8 @@ class _LoginState extends State<Login> {
                                             context,
                                             MaterialPageRoute(
                                               builder:
-                                                  (context) => const Register(),
+                                                  (context) =>
+                                                      const RegisterScreen(),
                                             ),
                                           );
                                         },

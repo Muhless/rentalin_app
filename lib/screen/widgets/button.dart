@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 class ButtonSubmit extends StatelessWidget {
   final String btnText;
   final Function onBtnPressed;
-  const ButtonSubmit({Key? key, required this.btnText, required this.onBtnPressed})
-      : super(key: key);
+  const ButtonSubmit({super.key, required this.btnText, required this.onBtnPressed});
 
   @override
   Widget build(BuildContext context) {
