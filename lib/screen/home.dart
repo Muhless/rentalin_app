@@ -2,9 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:rentalin_app/screen/auth/login.dart';
-import 'package:rentalin_app/screen/help.dart';
+import 'package:rentalin_app/screen/customer_service.dart';
 import 'package:rentalin_app/screen/list.dart';
-import 'package:rentalin_app/screen/profile.dart';
 import 'package:rentalin_app/screen/rental.dart';
 import 'package:rentalin_app/screen/widgets/statusbar.dart';
 import 'package:rentalin_app/screen/widgets/warna.dart';
@@ -26,7 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadUsername();
   }
 
-
   Future<void> _loadUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -35,14 +33,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _logout(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
-    await prefs.remove('username');
-    Navigator.pushReplacement(
-      // ignore: use_build_context_synchronously
-      context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
+    bool? confirmLogout = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Konfirmasi Logout'),
+          content: Text('Apakah Anda yakin ingin keluar?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: Text('Logout'),
+            ),
+          ],
+        );
+      },
     );
+
+    if (confirmLogout == true) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token');
+      await prefs.remove('username');
+      Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+      );
+    }
   }
 
   @override
@@ -61,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             Container(
-              margin: EdgeInsets.only(top: 88, left: 30, right: 30),
+              margin: EdgeInsets.only(top: 88, left: 50, right: 50),
               child: Column(
                 children: [
                   Align(
@@ -83,12 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         username,
                         style: TextStyle(fontSize: 30, color: Colors.white),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.logout, size: 20, color: Colors.white),
-                        onPressed: () {
-                          _logout(context);
-                        },
-                      ),
+                      Icon(Icons.account_circle, size: 40, color: Colors.white),
                     ],
                   ),
                 ],
@@ -275,19 +294,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       switch (index) {
                         case 0:
                           iconSpesifikasi = Icon(
-                            Icons.history,
-                            size: 40,
-                            color: Colors.white,
-                          );
-                          judulSpesifikasi = 'Profil';
-                          break;
-                        case 1:
-                          iconSpesifikasi = Icon(
                             Icons.help_center,
                             size: 40,
                             color: Colors.white,
                           );
                           judulSpesifikasi = 'Bantuan';
+                          break;
+                        case 1:
+                          iconSpesifikasi = Icon(
+                            Icons.logout_outlined,
+                            size: 40,
+                            color: Colors.white,
+                          );
+                          judulSpesifikasi = 'Log Out';
                           break;
                         default:
                           iconSpesifikasi = Icon(Icons.ac_unit);
@@ -301,17 +320,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => ProfileScreen()
+                                  builder: (context) => CustomerServiceScreen(),
                                 ),
                               );
                               break;
                             case 1:
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CustomerserviceScreen(),
-                                ),
-                              );
+                              _logout(context);
                               break;
                             default:
                               Navigator.pop(context);

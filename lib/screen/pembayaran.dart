@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, avoid_print
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -22,7 +22,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
   String? selectedPaymentMethod;
   int biayaSewa = 0;
   String username = '';
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   Future<void> _sendDataToApi(BuildContext context) async {
     if (selectedStartDate == null ||
@@ -40,19 +40,16 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
     }
     final Map<String, dynamic> requestData = {
       'users': username,
-      'cars': widget.car['brand'],
-      'rent_date': selectedStartDate?.toIso8601String(),
-      'return_date': selectedEndDate?.toIso8601String(),
+      'cars': '${widget.car['brand']} ${widget.car['model']}',
+      'rent_date': formatDateWithoutTime(selectedStartDate),
+      'return_date': formatDateWithoutTime(selectedEndDate),
       'rent_duration': getDurasiSewa(),
       'payment': selectedPaymentMethod,
       'total': int.tryParse(
         getTotal().replaceAll('Rp.', '').replaceAll(',', ''),
       ),
-      'status': 'Pending',
+      'status': 'Sedang Berlangsung',
     };
-    final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
-        GlobalKey<ScaffoldMessengerState>();
-
     final response = await http.post(
       Uri.parse('http://10.0.2.2:8000/api/transactions'),
 
@@ -65,19 +62,43 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       print('Data berhasil dikirim: ${response.body}');
-      scaffoldMessengerKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text('Data berhasil dikirim'),
-          backgroundColor: Colors.green,
-        ),
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Success'),
+            content: Text('Data berhasil disimpan.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushReplacementNamed(context, '/rental');
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
       );
     } else {
       print('Gagal mengirim data: ${response.statusCode} - ${response.body}');
-      scaffoldMessengerKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text('Gagal mengirim data'),
-          backgroundColor: Colors.red,
-        ),
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Gagal mengirim data.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  // Tutup dialog
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
       );
     }
   }
@@ -147,6 +168,16 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
         }
       });
     }
+  }
+
+  String formatDateWithoutTime(DateTime? date) {
+    if (date == null) return '';
+    return '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  String formatTanggal(DateTime? date) {
+    if (date == null) return '';
+    return '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
   }
 
   String _formatDateWithoutLocale(DateTime? date) {

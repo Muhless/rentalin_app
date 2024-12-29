@@ -1,7 +1,4 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
-
 import 'dart:convert';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -76,30 +73,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
           backgroundColor: Colors.red,
         ),
       );
-      return; 
+      return;
     }
 
-   bool isPhoneRegistered = await isPhoneNumberAlreadyRegistered(phone);
-  if (isPhoneRegistered) {
-    setState(() {
-      _errorMessage = 'Nomor telepon sudah terdaftar'; 
-    });
-    return;
-  } else {
-    setState(() {
-      _errorMessage = '';
-    });
-  }
+    bool isPhoneRegistered = await isPhoneNumberAlreadyRegistered(phone);
+    if (isPhoneRegistered) {
+      setState(() {
+        _errorMessage = 'Nomor telepon sudah terdaftar';
+      });
+      return;
+    } else {
+      setState(() {
+        _errorMessage = '';
+      });
+    }
 
     bool isRegistered = await _register(username, phone, password);
 
     if (isRegistered) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-        (Route<dynamic> route) => false,
-      );
+      _showConfirmationDialog();
     } else {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Terjadi kesalahan, coba lagi'),
@@ -107,6 +101,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       );
     }
+  }
+
+  void _showConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Pendaftaran Berhasil'),
+          content: Text('Akun berhasil dibuat! Anda sekarang bisa login.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (Route<dynamic> route) => false,
+                );
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -169,7 +187,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.white),
                           ),
-                          errorText: _errorMessage.isEmpty ? null : _errorMessage,
+                          errorText:
+                              _errorMessage.isEmpty ? null : _errorMessage,
                         ),
                         style: TextStyle(color: Colors.white),
                       ),

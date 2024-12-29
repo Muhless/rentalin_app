@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rentalin_app/screen/home.dart';
 import 'package:rentalin_app/screen/auth/login.dart';
+import 'package:rentalin_app/screen/rental.dart';
 import 'package:rentalin_app/screen/widgets/splash.dart';
 
 void main() {
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
         '/splash': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
+        '/rental': (context) => const RentalScreen(),
       },
     );
   }

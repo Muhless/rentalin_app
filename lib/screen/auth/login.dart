@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -19,8 +17,7 @@ Future<bool> login(String username, String password) async {
   );
 
   if (response.statusCode == 200) {
-    // ignore: unused_local_variable
-    final data = jsonDecode(response.body);
+    jsonDecode(response.body);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('username', username);
@@ -47,11 +44,19 @@ class _LoginScreenState extends State<LoginScreen> {
     String password = _passwordController.text;
 
     if (username.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Username dan password tidak boleh kosong'),
-          backgroundColor: Colors.red,
-        ),
+      showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: Text('Error'),
+              content: Text('Username dan password tidak boleh kosong'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK'),
+                ),
+              ],
+            ),
       );
       return;
     }
@@ -59,15 +64,45 @@ class _LoginScreenState extends State<LoginScreen> {
     bool isLoggedIn = await login(username, password);
 
     if (isLoggedIn) {
-      Navigator.pushReplacementNamed(context, '/home');
+      _showSuccessDialog();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login Gagal, silahkan ulangi kembali'),
-          backgroundColor: Colors.red,
-        ),
+      showDialog(
+        // ignore: use_build_context_synchronously
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: Text('Login Gagal'),
+              content: Text('Login Gagal, silahkan ulangi kembali'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK'),
+                ),
+              ],
+            ),
       );
     }
+  }
+
+  // Show success dialog after login
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Login Berhasil'),
+            content: Text('Selamat, Anda berhasil login!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close the dialog
+                  Navigator.pushReplacementNamed(context, '/home');
+                },
+                child: Text('OK'),
+              ),
+            ],
+          ),
+    );
   }
 
   @override
