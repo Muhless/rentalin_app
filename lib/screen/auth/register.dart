@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously
+
 import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -20,21 +22,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  String _errorMessage = '';
+  final String _errorMessage = '';
 
   Future<bool> isPhoneNumberAlreadyRegistered(String phone) async {
     final String apiUrl = 'http://10.0.2.2:8000/api/users';
 
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'phone': phone}),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'phone': phone}),
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['is_registered'] ?? false;
-    } else {
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['is_registered'] ?? false;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print("Error checking phone number: $e");
       return false;
     }
   }
@@ -42,21 +49,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<bool> _register(String username, String phone, String password) async {
     final String apiUrl = 'http://10.0.2.2:8000/api/register';
 
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': username,
-        'phone': phone,
-        'password': password,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'phone': phone,
+          'password': password,
+        }),
+      );
 
-    if (response.statusCode == 201) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('username', username);
-      return true;
-    } else {
+      if (response.statusCode == 201) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('username', username);
+        return true;
+      } else {
+        print("Registration failed: ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Error registering: $e");
       return false;
     }
   }
@@ -78,14 +91,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     bool isPhoneRegistered = await isPhoneNumberAlreadyRegistered(phone);
     if (isPhoneRegistered) {
-      setState(() {
-        _errorMessage = 'Nomor telepon sudah terdaftar';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nomor telepon sudah terdaftar'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
-    } else {
-      setState(() {
-        _errorMessage = '';
-      });
     }
 
     bool isRegistered = await _register(username, phone, password);
@@ -93,7 +105,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (isRegistered) {
       _showConfirmationDialog();
     } else {
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Terjadi kesalahan, coba lagi'),
