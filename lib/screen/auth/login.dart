@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -10,19 +12,37 @@ import 'package:rentalin_app/screen/widgets/warna.dart';
 Future<bool> login(String username, String password) async {
   final String apiUrl = 'http://10.0.2.2:8000/api/login';
 
-  final response = await http.post(
-    Uri.parse(apiUrl),
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'username': username, 'password': password}),
-  );
+  try {
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({'username': username, 'password': password}),
+    );
 
-  if (response.statusCode == 200) {
-    jsonDecode(response.body);
+    print('Response Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('username', username);
-    return true;
-  } else {
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      if (data['token'] != null) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('username', username);
+        await prefs.setString('token', data['token']);
+        return true;
+      } else {
+        print('Token not found in the response.');
+        return false;
+      }
+    } else {
+      print('Login failed with status code: ${response.statusCode}');
+      return false;
+    }
+  } catch (e) {
+    print('Error during login process: $e');
     return false;
   }
 }
@@ -84,7 +104,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // Show success dialog after login
   void _showSuccessDialog() {
     showDialog(
       context: context,
@@ -95,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context); // Close the dialog
+                  Navigator.pop(context);
                   Navigator.pushReplacementNamed(context, '/home');
                 },
                 child: Text('OK'),
