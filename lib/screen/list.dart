@@ -24,7 +24,7 @@ class _ListFamilyCarsState extends State<ListCarScreen> {
   }
 
   Future<void> fetchCars() async {
-    const String apiUrl = 'http://10.0.2.2:8000/api/cars';
+    const String apiUrl = 'http://192.168.116.116:8001/api/cars';
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -142,6 +142,7 @@ class _ListFamilyCarsState extends State<ListCarScreen> {
                                         error,
                                         stackTrace,
                                       ) {
+                                        print("Error loading image: $error");
                                         return Icon(Icons.error);
                                       },
                                     ),

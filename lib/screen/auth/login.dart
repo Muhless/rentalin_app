@@ -10,7 +10,7 @@ import 'package:rentalin_app/screen/auth/register.dart';
 import 'package:rentalin_app/screen/widgets/warna.dart';
 
 Future<bool> login(String username, String password) async {
-  final String apiUrl = 'http://10.0.2.2:8000/api/login';
+  final String apiUrl = 'http://192.168.116.116:8001/api/login';
 
   try {
     final response = await http.post(

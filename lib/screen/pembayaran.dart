@@ -51,7 +51,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
       'status': 'Sedang Berlangsung',
     };
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8000/api/transactions'),
+      Uri.parse('http://192.168.116.116:8001/api/transactions'),
 
       headers: {
         'Content-Type': 'application/json',

@@ -109,7 +109,7 @@ class _DetailFamilyCars extends State<DetailCarScreen> {
                     child: Image.network(
                       widget.car['image_url'] ??
                           'https://via.placeholder.com/150',
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fill,
                     ),
                   ),
                 ),
@@ -162,7 +162,7 @@ class _DetailFamilyCars extends State<DetailCarScreen> {
                     child: Container(
                       margin: EdgeInsets.only(left: 30, right: 30, top: 30),
                       child: Row(
-                        children: List.generate(7, (index) {
+                        children: List.generate(6, (index) {
                           Icon iconSpesifikasi;
                           String judulSpesifikasi;
                           String keteranganSpesifikasi;
@@ -186,7 +186,7 @@ class _DetailFamilyCars extends State<DetailCarScreen> {
                               );
                               judulSpesifikasi = 'Kapasitas';
                               keteranganSpesifikasi =
-                                  '${widget.car['capacity']} Orang';
+                                  '${widget.car['capacity']}';
                               break;
                             case 2:
                               iconSpesifikasi = Icon(
@@ -208,19 +208,10 @@ class _DetailFamilyCars extends State<DetailCarScreen> {
                               keteranganSpesifikasi =
                                   '${widget.car['lunggage_capacity']}';
                               break;
+
                             case 4:
                               iconSpesifikasi = Icon(
-                                Icons.star,
-                                size: 40,
-                                color: Colors.white,
-                              );
-                              judulSpesifikasi = 'Fitur';
-                              keteranganSpesifikasi =
-                                  '${widget.car['features']}';
-                              break;
-                            case 5:
-                              iconSpesifikasi = Icon(
-                                Icons.door_back_door,
+                                Icons.local_gas_station_rounded,
                                 size: 40,
                                 color: Colors.white,
                               );
@@ -228,18 +219,18 @@ class _DetailFamilyCars extends State<DetailCarScreen> {
                               keteranganSpesifikasi =
                                   '${widget.car['fuel_type']}';
                               break;
-                            case 6:
+                            case 5:
                               iconSpesifikasi = Icon(
-                                Icons.ac_unit,
+                                Icons.gesture,
                                 size: 40,
                                 color: Colors.white,
                               );
                               judulSpesifikasi = 'Konsumsi';
                               keteranganSpesifikasi =
-                                  '${widget.car['fuel_consumption']}';
+                                  '${widget.car['fuel_consumption']} ltr/km';
                               break;
                             default:
-                              iconSpesifikasi = Icon(Icons.ac_unit);
+                              iconSpesifikasi = Icon(Icons.gesture_sharp);
                               judulSpesifikasi = 'Kapasitas';
                               keteranganSpesifikasi = '4 Orang';
                           }
@@ -388,7 +379,7 @@ class _DetailFamilyCars extends State<DetailCarScreen> {
   }
 
   Future<void> _saveCarDataToApi() async {
-    final url = 'http://10.0.2.2:8000/cars/${widget.car['id']}';
+    final url = 'http://192.168.116.116:8001/cars/${widget.car['id']}';
 
     final Map<String, dynamic> requestData = {
       'category': _categoryController.text,
