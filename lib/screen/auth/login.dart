@@ -28,7 +28,7 @@ Future<bool> login(String username, String password) async {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
-      final userId = data['user']['id'];
+      final userId = data['user']['id'].toString();
       final userName = data['user']['username'];
       final token = data['token'];
 

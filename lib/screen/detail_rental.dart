@@ -1,102 +1,36 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:rentalin_app/screen/widgets/warna.dart';
 
 class DetailRentalScreen extends StatefulWidget {
-  final dynamic transaksi;
+  final dynamic rental;
 
-  const DetailRentalScreen({super.key, required this.transaksi});
+  const DetailRentalScreen({super.key, required this.rental});
 
   @override
-  // ignore: library_private_types_in_public_api
   _DetailRentalScreenState createState() => _DetailRentalScreenState();
 }
 
 class _DetailRentalScreenState extends State<DetailRentalScreen> {
   final bool _isLoading = false;
-  late bool _isAdmin = false;
 
   @override
   void initState() {
     super.initState();
-    _checkIfAdmin();
-  }
-
-  void _checkIfAdmin() {
-    setState(() {
-      _isAdmin = true;
-    });
-  }
-
-  Future<void> _updateStatus(BuildContext context) async {
-    String? newStatus = await showDialog(
-      context: context,
-      builder: (context) {
-        String? selectedStatus;
-        return AlertDialog(
-          title: Text('Ubah Status'),
-          content: DropdownButtonFormField<String>(
-            items:
-                ['Sedang Berlangsung', 'Selesai', 'Dibatalkan']
-                    .map(
-                      (status) =>
-                          DropdownMenuItem(value: status, child: Text(status)),
-                    )
-                    .toList(),
-            onChanged: (value) {
-              selectedStatus = value;
-            },
-            hint: Text('Pilih Status Baru'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Batal'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(selectedStatus);
-              },
-              child: Text('Simpan'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (newStatus != null) {
-      // ignore: avoid_print
-      print('Status baru: $newStatus');
-      setState(() {
-        widget.transaksi['status'] = newStatus;
-      });
-
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Status berhasil diubah menjadi $newStatus')),
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final transaksi = widget.transaksi;
+    final rental = widget.rental;
 
     return Scaffold(
       backgroundColor: Warna.primaryColor,
       appBar: AppBar(
-        title: Text('Detail Transaksi'),
+        title: Text('Detail rental'),
         backgroundColor: Warna.primaryColor,
         foregroundColor: Colors.white,
-        actions: [
-          if (_isAdmin)
-            IconButton(
-              onPressed: () => _updateStatus(context),
-              icon: Icon(Icons.edit),
-              tooltip: 'Ubah Status',
-            ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -107,33 +41,40 @@ class _DetailRentalScreenState extends State<DetailRentalScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      _buildDetailRow('Nama', '${transaksi['users']}'),
+                      _buildDetailRow(
+                        'Customer',
+                        '${rental['user']['username']}',
+                      ),
                       SizedBox(height: 10),
-                      _buildDetailRow('Mobil', '${transaksi['cars']}'),
+                      _buildDetailRow(
+                        'Mobil',
+                        '${rental['car']['brand']} ${rental['car']['model']}',
+                      ),
                       SizedBox(height: 10),
                       _buildDetailRow(
                         'Tanggal Perentalan',
-                        '${transaksi['rent_date']}',
+                        DateFormat(
+                          'dd MMMM yyyy',
+                        ).format(DateTime.parse(rental['rent_date'])),
                       ),
                       SizedBox(height: 10),
                       _buildDetailRow(
                         'Tanggal Pengembalian',
-                        '${transaksi['return_date']}',
+                        DateFormat(
+                          'dd MMMM yyyy',
+                        ).format(DateTime.parse(rental['return_date'])),
                       ),
                       SizedBox(height: 10),
                       _buildDetailRow(
                         'Durasi Rental',
-                        '${transaksi['rent_duration']} days',
+                        '${rental['rent_duration']} hari',
                       ),
                       SizedBox(height: 10),
-                      _buildDetailRow(
-                        'Metode Pembayaran',
-                        '${transaksi['payment']}',
-                      ),
+                      _buildDetailRow('Driver', '${rental['driver']}'),
                       SizedBox(height: 10),
-                      _buildDetailRow('Total', 'Rp ${transaksi['total']}'),
+                      _buildDetailRow('Total', 'Rp ${rental['total']}'),
                       SizedBox(height: 10),
-                      _buildDetailRow('Status', '${transaksi['status']}'),
+                      _buildDetailRow('Status', '${rental['status']}'),
                     ],
                   ),
                 ),

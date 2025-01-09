@@ -108,10 +108,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         username,
                         style: TextStyle(fontSize: 30, color: Colors.white),
                       ),
-                      Text(
-                        userId,
-                        style: TextStyle(fontSize: 30, color: Colors.white),
-                      ),
                       Icon(Icons.account_circle, size: 40, color: Colors.white),
                     ],
                   ),

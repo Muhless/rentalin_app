@@ -40,15 +40,15 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('id');
 
-    // if (userId == null) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(
-    //       content: Text('User ID tidak ditemukan.'),
-    //       backgroundColor: Colors.red,
-    //     ),
-    //   );
-    //   return;
-    // }
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('User ID tidak ditemukan.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     final Map<String, dynamic> requestData = {
       'user_id': userId,
@@ -60,7 +60,6 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
       'total': int.tryParse(
         getTotal().replaceAll('Rp.', '').replaceAll(',', ''),
       ),
-      // 'status': 'Sedang Berlangsung',
     };
 
     try {
@@ -162,7 +161,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
 
   int getDurasiSewa() {
     if (selectedStartDate != null && selectedEndDate != null) {
-      return selectedEndDate!.difference(selectedStartDate!).inDays;
+      return selectedEndDate!.difference(selectedStartDate!).inDays + 1;
     }
     return 0;
   }
