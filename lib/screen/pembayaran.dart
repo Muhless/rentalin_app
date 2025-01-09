@@ -19,15 +19,13 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
   bool isDriverSelected = false;
-  String? selectedPaymentMethod;
   int biayaSewa = 0;
+  String userId = '';
   String username = '';
   final bool _isLoading = false;
 
   Future<void> _sendDataToApi(BuildContext context) async {
-    if (selectedStartDate == null ||
-        selectedEndDate == null ||
-        selectedPaymentMethod == null) {
+    if (selectedStartDate == null || selectedEndDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -38,60 +36,97 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
       );
       return;
     }
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('id');
+
+    // if (userId == null) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text('User ID tidak ditemukan.'),
+    //       backgroundColor: Colors.red,
+    //     ),
+    //   );
+    //   return;
+    // }
+
     final Map<String, dynamic> requestData = {
-      'users': username,
-      'cars': '${widget.car['brand']} ${widget.car['model']}',
+      'user_id': userId,
+      'car_id': widget.car['id'],
       'rent_date': formatDateWithoutTime(selectedStartDate),
       'return_date': formatDateWithoutTime(selectedEndDate),
       'rent_duration': getDurasiSewa(),
-      'payment': selectedPaymentMethod,
+      'driver': isDriverSelected ? 'Ya' : 'Tidak',
       'total': int.tryParse(
         getTotal().replaceAll('Rp.', '').replaceAll(',', ''),
       ),
-      'status': 'Sedang Berlangsung',
+      // 'status': 'Sedang Berlangsung',
     };
-    final response = await http.post(
-      Uri.parse('http://192.168.116.116:8001/api/transactions'),
 
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: jsonEncode(requestData),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.116.116:8001/api/rentals'),
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      print('Data berhasil dikirim: ${response.body}');
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Success'),
-            content: Text('Data berhasil disimpan.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.pushReplacementNamed(context, '/rental');
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
+        body: jsonEncode(requestData),
       );
-    } else {
-      print('Gagal mengirim data: ${response.statusCode} - ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Data berhasil dikirim: ${response.body}');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Success'),
+              content: Text('Data berhasil disimpan.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.pushReplacementNamed(context, '/rental');
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        print('Gagal mengirim data: ${response.statusCode} - ${response.body}');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text('Gagal mengirim data.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print('Terjadi kesalahan: $e');
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Error'),
-            content: Text('Gagal mengirim data.'),
+            content: Text(
+              'Gagal mengirim data. Pastikan Anda memiliki koneksi internet.',
+            ),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
-                  // Tutup dialog
                   Navigator.of(context).pop();
                 },
                 child: Text('OK'),
@@ -103,15 +138,18 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
     }
   }
 
-  Future<void> saveUserData(String username) async {
+  Future<void> saveUserData(String username, String userId) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('username', username);
+    prefs.setString('id', userId);
+    print('Data disimpan: username = $username, userId = $userId');
   }
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       username = prefs.getString('username') ?? 'Unknown';
+      userId = prefs.getString('id') ?? 'Unknown';
     });
   }
 
@@ -246,7 +284,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          margin: EdgeInsets.symmetric(vertical: 20),
+          margin: EdgeInsets.symmetric(vertical: 40),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -360,53 +398,6 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                               },
                               activeColor: Colors.blue,
                               checkColor: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    SizedBox(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Metode Pembayaran',
-                            style: TextStyle(fontSize: 18, color: Colors.white),
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Warna.thirdColor,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: DropdownButton<String>(
-                              icon: Icon(
-                                Icons.linear_scale_outlined,
-                                color: Colors.white,
-                              ),
-                              value: selectedPaymentMethod,
-                              dropdownColor: Colors.black,
-                              underline: SizedBox(),
-                              isExpanded: false,
-                              style: TextStyle(color: Colors.white),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectedPaymentMethod = newValue;
-                                });
-                              },
-                              items:
-                                  <String>[
-                                    'Cash',
-                                    'Debit',
-                                    'Credit Card',
-                                  ].map<DropdownMenuItem<String>>((
-                                    String value,
-                                  ) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
                             ),
                           ),
                         ],
@@ -530,12 +521,6 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                                             : 'Rp.0',
                                   },
                                   {'label': 'Total', 'value': getTotal()},
-                                  {
-                                    'label': 'Metode Pembayaran',
-                                    'value':
-                                        selectedPaymentMethod ??
-                                        'Belum dipilih',
-                                  },
                                 ])
                                   Padding(
                                     padding: const EdgeInsets.only(bottom: 10),
@@ -579,7 +564,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                     _isLoading
                         ? CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.deepPurple,
+                            Colors.blue,
                           ),
                           strokeWidth: 4.0,
                         )

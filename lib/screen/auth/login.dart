@@ -28,17 +28,20 @@ Future<bool> login(String username, String password) async {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
-      if (data['token'] != null) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('username', username);
-        await prefs.setString('token', data['token']);
-        return true;
-      } else {
-        print('Token not found in the response.');
-        return false;
-      }
+      final userId = data['user']['id'];
+      final userName = data['user']['username'];
+      final token = data['token'];
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('id', userId);
+      await prefs.setString('username', userName);
+      await prefs.setString('token', token);
+
+      print("Login berhasil. User ID: $userId");
+      return true;
     } else {
       print('Login failed with status code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
       return false;
     }
   } catch (e) {

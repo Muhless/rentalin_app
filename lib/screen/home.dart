@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:rentalin_app/screen/auth/login.dart';
@@ -18,6 +18,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String username = '';
+  String userId = '';
 
   @override
   void initState() {
@@ -29,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       username = prefs.getString('username') ?? 'Guest';
+      userId = prefs.getString('id') ?? 'Guest';
     });
   }
 
@@ -62,7 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
       await prefs.remove('token');
       await prefs.remove('username');
       Navigator.pushReplacement(
-        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(builder: (context) => LoginScreen()),
       );
@@ -105,6 +106,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text(
                         username,
+                        style: TextStyle(fontSize: 30, color: Colors.white),
+                      ),
+                      Text(
+                        userId,
                         style: TextStyle(fontSize: 30, color: Colors.white),
                       ),
                       Icon(Icons.account_circle, size: 40, color: Colors.white),
