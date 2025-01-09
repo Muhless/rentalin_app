@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:rentalin_app/screen/pembayaran.dart';
 import 'package:rentalin_app/screen/widgets/warna.dart';
 
@@ -73,7 +74,7 @@ class _DetailCarScreen extends State<DetailCarScreen> {
                         child: Row(
                           children: [
                             Text(
-                              'Rp.${widget.car['price']}',
+                              'Rp ${NumberFormat('#,###').format(widget.car['price'])}',
                               style: TextStyle(
                                 color: Colors.yellow,
                                 fontSize: 16,
@@ -83,7 +84,7 @@ class _DetailCarScreen extends State<DetailCarScreen> {
                         ),
                       ),
                       Text(
-                        ' / 1 hari',
+                        '/hari',
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ],

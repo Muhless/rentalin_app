@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:rentalin_app/screen/widgets/warna.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,7 +25,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
   String username = '';
   final bool _isLoading = false;
 
-  Future<void> _sendDataToApi(BuildContext context) async {
+  Future<void> _kirimData(BuildContext context) async {
     if (selectedStartDate == null || selectedEndDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -79,8 +80,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Success'),
-              content: Text('Data berhasil disimpan.'),
+              title: Text('Pembayaran Dikonfirmasi'),
+              content: Text('Pembayaran telah berhasil dikonfirmasi'),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
@@ -179,7 +180,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
     int duration = getDurasiSewa();
     int totalCarPrice = widget.car['price'] * duration;
     int total = totalCarPrice + driver;
-    return 'Rp.${total.toString()}';
+    return 'Rp. ${NumberFormat('#,###').format(total)}';
   }
 
   Future<void> _selectDate(
@@ -373,7 +374,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                                 ),
                               ),
                               Text(
-                                'Rp.100000 / Hari',
+                                'Rp.100,000/Hari',
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Colors.white70,
@@ -441,7 +442,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                             },
                             {
                               'label': 'Harga Sewa',
-                              'value': 'Rp.${widget.car['price']} / Hari',
+                              'value':
+                                  'Rp ${NumberFormat('#,###').format(widget.car['price'])}/Hari',
                             },
                           ]),
                           _buildDetailColumn([
@@ -509,14 +511,14 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                                   {
                                     'label': 'Biaya Sewa',
                                     'value':
-                                        'Rp.${widget.car['price'] * getDurasiSewa()}',
+                                        'Rp. ${NumberFormat('#,###').format(widget.car['price'] * getDurasiSewa())}',
                                   },
 
                                   {
                                     'label': 'Biaya Driver',
                                     'value':
                                         isDriverSelected
-                                            ? 'Rp.${100000 * getDurasiSewa()}'
+                                            ? 'Rp. ${NumberFormat('#,###').format(100000 * getDurasiSewa())}'
                                             : 'Rp.0',
                                   },
                                   {'label': 'Total', 'value': getTotal()},
@@ -568,7 +570,38 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                           strokeWidth: 4.0,
                         )
                         : ElevatedButton(
-                          onPressed: () => _sendDataToApi(context),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Konfirmasi'),
+                                  content: Text(
+                                    'Apakah Anda yakin ingin mengonfirmasi pembayaran ini?',
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('Batal'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        _kirimData(context);
+                                        Navigator.pushReplacementNamed(
+                                          context,
+                                          '/rental',
+                                        );
+                                      },
+                                      child: Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
                             backgroundColor: Colors.blue,

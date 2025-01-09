@@ -56,12 +56,23 @@ class _RentalScreenState extends State<RentalScreen> {
         title: Text('Halaman Rental'),
         backgroundColor: Warna.primaryColor,
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/home');
+          },
+        ),
       ),
       body:
           isLoading
               ? Center(child: CircularProgressIndicator())
               : rentals.isEmpty
-              ? Center(child: Text('Data tidak ditemukan.'))
+              ? Center(
+                child: Text(
+                  'Belum ada data rental',
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+              )
               : Container(
                 margin: EdgeInsets.only(left: 30, right: 30, top: 20),
                 child: ListView.builder(
@@ -70,15 +81,15 @@ class _RentalScreenState extends State<RentalScreen> {
                     final rental = rentals[index];
                     return GestureDetector(
                       onTap:
-                          rental['status'] == 'Disetujui'
+                          rental['status'] == 'Disetujui' ||
+                                  rental['status'] == 'Selesai'
                               ? () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder:
-                                        (context) => DetailRentalScreen(
-                                          rental: rental,
-                                        ),
+                                        (context) =>
+                                            DetailRentalScreen(rental: rental),
                                   ),
                                 );
                               }
@@ -88,10 +99,10 @@ class _RentalScreenState extends State<RentalScreen> {
                         child: Card(
                           color:
                               rental['status'] == 'Menunggu persetujuan'
-                                  ? Warna.fifthColor
+                                  ? Colors.grey[600]
                                   : rental['status'] == 'Ditolak'
-                                  ? Colors.grey[500]
-                                  : Colors.white,
+                                  ? Colors.grey[600]
+                                  : Warna.fifthColor,
                           margin: EdgeInsets.only(bottom: 20),
                           child: ListTile(
                             subtitle: Column(
@@ -153,6 +164,9 @@ class _RentalScreenState extends State<RentalScreen> {
                                                     : rental['status'] ==
                                                         'Disetujui'
                                                     ? Colors.green
+                                                    : rental['status'] ==
+                                                        'Selesai'
+                                                    ? Colors.teal
                                                     : Colors.red,
                                             borderRadius: BorderRadius.circular(
                                               10,

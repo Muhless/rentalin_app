@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:rentalin_app/screen/detail.dart';
 import 'package:rentalin_app/screen/widgets/warna.dart';
 
@@ -117,14 +118,14 @@ class _ListFamilyCarsState extends State<ListCarScreen> {
                                           Container(
                                             alignment: Alignment.center,
                                             height: 28,
-                                            width: 120,
+                                            width: 130,
                                             decoration: BoxDecoration(
                                               color: Warna.secondaryColor,
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
                                             child: Text(
-                                              'Rp${car['price']}/Hari',
+                                              'Rp ${NumberFormat('#,###').format(car['price'])} / Hari',
                                               style: TextStyle(
                                                 fontSize: 13,
                                                 color: Colors.white,
