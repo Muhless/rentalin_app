@@ -24,7 +24,7 @@ class _RentalScreenState extends State<RentalScreen> {
   }
 
   Future<void> fetchTransaction() async {
-    const String apiUrl = 'http://192.168.116.116:8001/api/rentals';
+    const String apiUrl = 'http://192.168.28.116:8001/api/rentals';
     try {
       final response = await http.get(
         Uri.parse(apiUrl),

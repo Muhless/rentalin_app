@@ -21,6 +21,7 @@ Future<void> _updateDataTransaksi(
   Map<String, dynamic> rental,
 ) async {
   DateTime returnDate = DateTime.parse(rental['return_date']);
+  // DateTime actualReturnDate = DateTime.now();
   DateTime actualReturnDate = DateTime.now().add(Duration(days: 5));
   int lateDays = calculateLateDays(returnDate, actualReturnDate);
 
@@ -35,7 +36,7 @@ Future<void> _updateDataTransaksi(
 
   try {
     final response = await http.put(
-      Uri.parse('http://192.168.116.116:8001/api/rentals/${rental['id']}'),
+      Uri.parse('http://192.168.28.116:8001/api/rentals/${rental['id']}'),
 
       headers: {
         'Content-Type': 'application/json',
@@ -48,9 +49,7 @@ Future<void> _updateDataTransaksi(
       print('Data rental berhasil diperbarui : ${response.body}');
 
       final carResponse = await http.put(
-        Uri.parse(
-          'http://192.168.116.116:8001/api/cars/${rental['car']['id']}',
-        ),
+        Uri.parse('http://192.168.28.116:8001/api/cars/${rental['car']['id']}'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -226,7 +225,10 @@ class _DetailRentalScreenState extends State<DetailRentalScreen> {
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                       _updateDataTransaksi(context, rental);
-                                       Navigator.pushReplacementNamed(context, '/rental');
+                                      Navigator.pushReplacementNamed(
+                                        context,
+                                        '/rental',
+                                      );
                                     },
                                     child: Text('OK'),
                                   ),

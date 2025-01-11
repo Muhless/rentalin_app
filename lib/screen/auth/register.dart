@@ -25,7 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final String _errorMessage = '';
 
   Future<bool> isPhoneNumberAlreadyRegistered(String phone) async {
-    final String apiUrl = 'http://192.168.116.116:8001/api/users';
+    final String apiUrl = 'http://192.168.28.116:8001/api/users';
 
     try {
       final response = await http.post(
@@ -47,7 +47,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<bool> _register(String username, String phone, String password) async {
-    final String apiUrl = 'http://192.168.116.116:8001/api/register';
+    final String apiUrl = 'http://192.168.28.116:8001/api/register';
 
     try {
       final response = await http.post(

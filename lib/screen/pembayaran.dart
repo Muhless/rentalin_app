@@ -65,7 +65,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.116.116:8001/api/rentals'),
+        Uri.parse('http://192.168.28.116:8001/api/rentals'),
 
         headers: {
           'Content-Type': 'application/json',
